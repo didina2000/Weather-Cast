@@ -40,7 +40,12 @@ export async function printWeatherFor7Days({ lat, lon }) {
       .setLocale("ro")
       .toLocaleString(DateTime.DATE_MED);
 
-    const arr = [date, dayData.temp.max, dayData.temp.min, dayData.wind_speed];
+    const arr = [
+      date,
+      `${dayData.temp.max}°C`,
+      `${dayData.temp.min}°C`,
+      `${dayData.wind_speed}km/h`,
+    ];
     table.push(arr);
   });
   console.log(table.toString());
