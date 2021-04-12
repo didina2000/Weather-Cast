@@ -7,9 +7,28 @@ async function getData(url) {
   try {
     const response = await axios.get(url);
     const data = response.data;
+    console.log(data);
     return data;
   } catch (error) {
-    console.log(error.message);
+    //console.log(error.code);
+    const errorMessages = {
+      401: "API key este incorect. Va rugam verificati fisierul credential.js. ",
+      404:
+        "Denumirea orasului nu este valida. " +
+        "Va rugam verificati ati introdus numele orasului corect. ",
+      429: "Ati depasit limita de cereri actre OpenWeatherMAp API. ",
+      500: "Ne pare rau, a aparut o eroare interna a serverului. ",
+      EAI_AGAIN:
+        "Nu exita o conexiune cu internetul." +
+        "Verificati daca sunteti conectati la o sursa de internet. ",
+      get ENOTFOUND() {
+        return this.EAI_AGAIN;
+      },
+    };
+
+    const errorCode = error.code || Number(error.response.data.cod);
+    console.log(errorMessages[errorCode]);
+    process.exit();
   }
 }
 
