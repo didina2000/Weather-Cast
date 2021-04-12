@@ -48,5 +48,6 @@ export async function printWeatherFor7Days({ lat, lon }) {
     ];
     table.push(arr);
   });
+
   console.log(table.toString());
 }
