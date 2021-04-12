@@ -2,6 +2,7 @@ import axios from "axios";
 import { OPEN_WEATHER_MAP_API_KEY } from "./credential.js";
 import Table from "cli-table3";
 import { DateTime } from "luxon";
+import chalk from "chalk";
 
 async function getData(url) {
   try {
@@ -27,7 +28,7 @@ async function getData(url) {
     };
 
     const errorCode = error.code || Number(error.response.data.cod);
-    console.log(errorMessages[errorCode]);
+    console.log(chalk.red.bgYellow.bold(errorMessages[errorCode]));
     process.exit();
   }
 }
