@@ -4,29 +4,31 @@ import Table from "cli-table3";
 import { DateTime } from "luxon";
 import chalk from "chalk";
 
+/**
+ * Gets data
+ * @param {string} url
+ * @returns - the error messages
+ */
 async function getData(url) {
   try {
     const response = await axios.get(url);
     const data = response.data;
-    console.log(data);
     return data;
   } catch (error) {
-    //console.log(error.code);
     const errorMessages = {
-      401: "API key este incorect. Va rugam verificati fisierul credential.js. ",
+      401: "API key este incorect. Vă rugăm verificați fișierul credential.js. ",
       404:
-        "Denumirea orasului nu este valida. " +
-        "Va rugam verificati ati introdus numele orasului corect. ",
-      429: "Ati depasit limita de cereri actre OpenWeatherMAp API. ",
-      500: "Ne pare rau, a aparut o eroare interna a serverului. ",
+        "Denumirea orașului nu este validă.  " +
+        "Vă rugăm verificați dacă ați introdus numele orașului corect! ",
+      429: "Ați depășit limita de cereri către OpenWeatherMAp API. ",
+      500: "Ne pare rău, a apărut o eroare internă a serverului. ",
       EAI_AGAIN:
-        "Nu exita o conexiune cu internetul." +
-        "Verificati daca sunteti conectati la o sursa de internet. ",
+        "Nu există o conexiune cu Internetul." +
+        "Verificați dacă sunteți conectați la o sursă de internet. ",
       get ENOTFOUND() {
         return this.EAI_AGAIN;
       },
     };
-
     const errorCode = error.code || Number(error.response.data.cod);
     console.log(chalk.red.bgYellow.bold(errorMessages[errorCode]));
     process.exit();
@@ -50,13 +52,37 @@ export async function printCurrentWeather(cityName) {
     `&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=ro`;
   const data = await getData(OPEN_WEATHER_MAP_API);
   console.log(
-    `În ${data.name} se prognozeaza ${data.weather[0].description}.` +
-      `\nTemperatura curentă este de ${data.main.temp}°C. ` +
+    `În ${data.name} se prognozează ${data.weather[0].description}.` +
+      `\nTemperatura curentă este de ${data.main.temp}°C.` +
       `\n Long: ${data.coord.lon} Lat: ${data.coord.lat}`
   );
   return data.coord;
 }
 
+/**
+ * Makes a table with dates
+ * @param {string} data
+ * @returns {table}
+ */
+function makeATable(data) {
+  let table = new Table({
+    head: ["Data", "Temp max.", "Temp min.", "Viteza vantului"],
+  });
+  const dailyData = data.daily;
+  dailyData.forEach((dayData) => {
+    const date = DateTime.fromSeconds(dayData.dt)
+      .setLocale("ro")
+      .toLocaleString(DateTime.DATE_MED);
+    const arr = [
+      date,
+      `${Math.round(dayData.temp.max)}°C`,
+      `${Math.round(dayData.temp.min)}°C`,
+      `${Math.round(dayData.wind_speed)}km/h`,
+    ];
+    table.push(arr);
+  });
+  return table;
+}
 /**
  * Prints weather forecast for 8 days
  * @param {Coords} coords - geographical coordonats of a location
@@ -66,23 +92,5 @@ export async function printWeatherFor8Days({ lat, lon }) {
     `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}` +
     `&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=ro`;
   const data = await getData(OPEN_WEATHER_MAP_API);
-  let table = new Table({
-    head: ["Data", "Temp max.", "Temp min.", "Viteza vantului"],
-  });
-  const dailyData = data.daily;
-  dailyData.forEach((dayData) => {
-    const date = DateTime.fromSeconds(dayData.dt)
-      .setLocale("ro")
-      .toLocaleString(DateTime.DATE_MED);
-
-    const arr = [
-      date,
-      `${dayData.temp.max}°C`,
-      `${dayData.temp.min}°C`,
-      `${dayData.wind_speed}km/h`,
-    ];
-    table.push(arr);
-  });
-
-  console.log(table.toString());
+  console.log(makeATable(data).toString());
 }
