@@ -6,8 +6,8 @@ import chalk from "chalk";
 
 /**
  * Gets data
- * @param {string} url
- * @returns - the error messages
+ * @param {} url
+ * @returns
  */
 async function getData(url) {
   try {
@@ -62,9 +62,9 @@ export async function printCurrentWeather(cityName) {
 /**
  * Makes a table with dates
  * @param {string} data
- * @returns {table}
+ * @returns {}
  */
-function makeATable(data) {
+function makeForecastTable(data) {
   let table = new Table({
     head: ["Data", "Temp max.", "Temp min.", "Viteza vantului"],
   });
@@ -77,12 +77,13 @@ function makeATable(data) {
       date,
       `${Math.round(dayData.temp.max)}°C`,
       `${Math.round(dayData.temp.min)}°C`,
-      `${Math.round(dayData.wind_speed)}km/h`,
+      `${Math.round(dayData.wind_speed)}m/s`,
     ];
     table.push(arr);
   });
   return table;
 }
+
 /**
  * Prints weather forecast for 8 days
  * @param {Coords} coords - geographical coordonats of a location
@@ -92,5 +93,6 @@ export async function printWeatherFor8Days({ lat, lon }) {
     `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}` +
     `&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=ro`;
   const data = await getData(OPEN_WEATHER_MAP_API);
-  console.log(makeATable(data).toString());
+
+  console.log(makeForecastTable(data).toString());
 }
